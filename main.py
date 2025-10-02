@@ -42,7 +42,6 @@ machine.freq(140000000) #overclock the CPU
 
 
 
-
 ###############################################################################
 # Begin Constants and Setups:
 
@@ -72,10 +71,8 @@ spi_adc = machine.SPI(0, # Initialize SPI communications for the ADC on channel 
 # Accelerometer (LIS3DH) Gibson - Bitbang acc
 SDA_acc = 17
 SCL_acc =  18
-# SDA_acc = 16
-# SCL_acc = 17
-# sda_acc = machine.Pin(SDA_acc)
-# scl_acc = machine.Pin(SCL_acc)
+sda_acc = machine.Pin(SDA_acc)
+scl_acc = machine.Pin(SCL_acc)
 # i2c_acc = machine.I2C(0, scl=machine.Pin(SCL_acc), sda=machine.Pin(SDA_acc), freq=400000)
 # lis3dh = LIS3DH(i2c_acc)
 
