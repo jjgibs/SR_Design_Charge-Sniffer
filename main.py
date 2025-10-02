@@ -68,7 +68,7 @@ spi_adc = machine.SPI(0, # Initialize SPI communications for the ADC on channel 
         miso=machine.Pin(MISO_ADC))
 
 
-# Accelerometer (LIS3DH) Gibson - Bitbang acc
+# Accelerometer (LIS3DH) Gibson 
 SDA_acc = 17
 SCL_acc =  18
 sda_acc = machine.Pin(SDA_acc)
@@ -582,7 +582,63 @@ def check_acc_values():
         # Return the failure message
         return "Failed to measure acceleration"
 
+# Function to start bitbang ACC - Gibson
+# Input is _________________________________ output is ready ACC or failure message
+def start_ACC():
+    try: 
+        # set initial values
+        sda_acc.value(1)
+        scl_acc.value(1)
+        utime.sleep_us(1) #delay max of 3.45 us for setup
+        sda_acc.value(0)
+        utime.sleep_us(1)
+        scl_acc.value(0)
+        utime.sleep_us(1)
+            print("Accelerometer is ready.")
+    except Exception as e:
+        print("Failed to start ACC:", e)
+        return "Failed to run accelerometer"
 
+# Function to stop bitbang ACC - Gibson
+# Input is _________________________________ output is finished ACC or failure message
+def stop_ACC():
+    try: 
+        # set values to complete sequence
+        sda_acc.value(0)
+        utime.sleep_us(1) #need to double check delay
+        scl_acc.value(1)
+        utime.sleep_us(1)
+        sda_acc.value(1)
+        utime.sleep_us(1)
+        print("Accelerometer sequence complete")
+except Exception as e:
+        print("Failed to stop ACC:", e)
+        return "Failed to stop accelerometer"   
+
+# Function to send data from ACC to RP 2040 - Gibson
+# Input is ________________________________ output is _________________
+def write_byte_acc(byte):
+    try for i in range(8):
+        sda_acc.value((byte >> (7 - i)) & 1)
+        utime.sleep_us(1) # check delay
+        scl_acc.value(1)
+        utime.sleep_us(1) # check delay
+        scl_acc.value(0)
+        utime.sleep_us(1) # check delay
+    # ACK
+    sda_acc.init(machine.Pin.IN)
+    utime.sleep_us(1) # check delay
+    scl_acc.value(1)
+    ack = sda_acc.value()
+    utime.sleep_us(1) # check delay
+    scl_acc.value(0)
+    sda_acc.init(machine.Pin.OPEN_DRAIN, value=1)
+    return ack == 0 # True if ACK received
+        
+    except Exception as e:
+        return "Error writing byte: {e}"
+                
+                
 # Function to control or read MCP23017 IO Expander pins
 def get_all_pin_values():
     try:
@@ -644,7 +700,6 @@ def Run_HW_Test():
         return "HW Test concluded"
     except Exception as e:
         return f"Hardware testing error: {e}"
-
 
 
 
@@ -879,17 +934,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
 
 
 
