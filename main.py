@@ -637,7 +637,32 @@ def write_byte_acc(byte):
         
     except Exception as e:
         return "Error writing byte: {e}"
-                
+
+# Function to recieve data from RP 2040 to ACC - Gibson
+# Input is ________________________________ output is _________________
+def read_byte_acc(ack=True):
+    try byte = 0
+    sda_acc.init(machine.Pin.IN)
+    for i in range(8):
+        scl_acc.value(1)         # enable clock
+        utime.sleep_us(1) # check delay
+        bit = sda_acc.value()    # get value from data line
+        byte = (byte << 1) | bit # compare bit
+        scl_acc.value(0)         # clock low
+        utime.sleep_us(1) # check delay
+    sda_acc.init(machine.Pin.OPEN_DRAIN, value=1)
+    # Send ACK/NACK
+    sda_acc.value(0 if ack else 1)
+    utime.sleep_us(1) # check delay
+    scl_acc.value(1)
+    utime.sleep_us(1) # check delay
+    scl_acc.value(0)
+    utime.sleep_us(1) # check delay
+    sda_acc.value(1)
+    return byte
+
+    except Exception as e:
+        return "Error reading byte: {e}"              
                 
 # Function to control or read MCP23017 IO Expander pins
 def get_all_pin_values():
